@@ -44,7 +44,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-Future<Object> fetchPost() async {
+Future<Map> fetchPost() async {
   final response =
       await http.get('http://news-at.zhihu.com/api/4/news/latest');
 
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   return StoryCard(
                     item['images'][0],
                     item['title'],
-                    item['share_url']
+                    item['id']
                   );
                 },
               );

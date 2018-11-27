@@ -1,16 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+Future<Map> fetchContent(id) async {
+  final response =
+      await http.get('https://news-at.zhihu.com/api/4/news/$id');
+
+  if (response.statusCode == 200) {
+    // If server returns an OK response, parse the JSON
+    return jsonDecode(response.body);
+  } else {
+    // If that response was not OK, throw an error.
+    throw Exception('Failed to load post');
+  }
+}
+
+renderWebView(context, url, title) {
+  Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => new WebviewScaffold(
+            url: url,
+            appBar: new AppBar(
+              title: Text(title),
+            )
+          )),
+    );
+}
 
 class StoryCard extends StatelessWidget {
-  String imageUrl, title, url;
-  StoryCard(this.imageUrl, this.title, this.url);
+  String imageUrl, title;
+  int id;
+  StoryCard(this.imageUrl, this.title, this.id);
 
   @override
   Widget build(BuildContext context) {
     return new GestureDetector(
       onTap: () {
         print('tapped');
-        new FlutterWebviewPlugin().launch(url);
+        fetchContent(id)
+          .then((data) {
+            renderWebView(context, data['share_url'], data['title']);
+          });
       },
       child: Container(
         margin: const EdgeInsets.symmetric(
